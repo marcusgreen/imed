@@ -1,0 +1,185 @@
+<div id="id_questiontext">
+  <input type="file" id="file"><br />
+  <canvas id="canvas" width="450" height="450"></canvas>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="fabric.js"></script>
+
+  <script>
+    // var canvas = new fabric.Canvas('canvas');
+    // document.getElementById('file').addEventListener("change", function (e) {
+    //   var file = e.target.files[0];
+    //   var reader = new FileReader();
+    //   reader.onload = function (f) {
+    //     var data = f.target.result;
+    //     fabric.Image.fromURL(data, function (img) {
+    //       var oImg = img.set({left: 0, top: 0, angle: 0,width:100, height:100}).scale(0.9);
+    //       canvas.add(oImg).renderAll();
+    //       var a = canvas.setActiveObject(oImg);
+    //       var dataURL = canvas.toDataURL({format: 'png', quality: 0.8});
+    //     });
+    //   };
+    //   reader.readAsDataURL(file);
+    // });
+    var newNode = document.createElement("span");
+    newNodeText = '<button id="rotateL" title="Rotate left"><i class="icon fa fa-rotate-left" aria-label="Rotate left"></i>  </button> ';
+    newNodeText += '<button id="rotateR" title="Rotate right"><i class="icon fa fa-rotate-right" aria-label="Rotate left"></i>  </button> ';
+
+    // newNodeText += '<input id="addcroparea" type="button" value="Add crop area">';
+    newNodeText += '<button id="done" title="Done"> <i class="icon fa fa-check fa-fw " title="Done" aria-label="Done"></i></button> ';
+    newNodeText += '<button id="close" title="Close"> <i class="icon fa fa-remove fa-fw " title="Close" aria-label="Close"></i></button> ';
+
+    newNodeText += '<button id="crop" title="Crop Image"> <i class="icon fa fa-crop fa-fw " title="Crop image" aria-label="Crop"></i></button> ';
+
+    newNodeText += '<canvas class="qtype_imageselect_thumbnail" id="c" width="300" height="180"></canvas>';
+
+    newNode.innerHTML = newNodeText;
+    var questiontext = document.getElementById('id_questiontext');
+    questiontext.parentNode.insertBefore(newNode, questiontext);
+    var disabled = false;
+    var selectionRect;
+    var aImg;
+
+    var canvas = new fabric.Canvas('c', {
+      backgroundColor: 'white',
+      selectionColor: 'red',
+      selectionLineWidth: 2
+    });
+
+    // var canvas = new fabric.Canvas('c');
+
+    var data = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyhpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDA2N0E2RUNGRThGMTFFNkFGQjdEM0Q0RUUzMUUzRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDA2N0E2RURGRThGMTFFNkFGQjdEM0Q0RUUzMUUzRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0MDY3QTZFQUZFOEYxMUU2QUZCN0QzRDRFRTMxRTNEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0MDY3QTZFQkZFOEYxMUU2QUZCN0QzRDRFRTMxRTNEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PhuR64EAAAAoSURBVHjaYty2bRsDDOjq6sLZTAw4AOkSjI8fP4ZzLl++TAs7AAIMAOiLB9q8B2ByAAAAAElFTkSuQmCC';
+    canvas.setBackgroundColor({
+      source: data,
+      repeat: 'repeat'
+    }, canvas.renderAll.bind(canvas));
+    // Add our image from URL onto canvas
+    fabric.Image.fromURL('http://localhost/mdl311/toaster.png', function (aImg) {
+      aImg.scale(0.15);
+      aImg.set({
+        originX: 'middle',
+        originY: 'middle',
+        selectable: true,
+        cornerStyle: 'circle'
+      });
+      fabric.Object.prototype.set({
+        transparentCorners: false,
+        borderColor: 'grey',
+        cornerColor: 'grey',
+      });
+
+      canvas.add(aImg).setActiveObject(aImg).renderAll();
+      canvas.centerObject(aImg);
+      aImg.setControlsVisibility({
+        mt: false, // middle top disable
+        mb: false, // midle bottom
+        ml: false, // middle left
+        mtr: false, // I think you get it
+      });
+      this.aImg = aImg;
+    });
+    canvas.on("mouse:down", function(event) {
+    if(!disabled) {
+       debugger;
+       el = document.getElementById('canvas');
+        var rect =  el.getBoundingClientRect();
+        rect.width = 2;
+        rect.height = 2;
+        rect.left = event.e.pageX - container.left;
+        rect.top = event.e.pageY - container.top;
+        rect.visible = true;
+        mouseDown = event.e;
+        canvas.bringToFront(rectangle);
+    }
+});
+
+    function addSelectionRect() {
+      var currentImage = canvas.getActiveObject();
+
+      selectionRect = new fabric.Rect({
+        fill: 'rgba(0,0,0,0.3)',
+        originX: 'left',
+        originY: 'top',
+        stroke: 'black',
+        opacity: 1,
+        width: currentImage.width,
+        height: currentImage.height,
+        hasRotatingPoint: false,
+        transparentCorners: false,
+        cornerColor: 'white',
+        cornerStrokeColor: 'black',
+        borderColor: 'black',
+        cornerSize: 12,
+        padding: 0,
+        cornerStyle: 'circle',
+        borderDashArray: [5, 5],
+        borderScaleFactor: 1.3
+      });
+
+
+      canvas.item(0).hasControls = false;
+      canvas.item(0).evented = false;
+
+      selectionRect.scaleToWidth(300);
+      canvas.centerObject(selectionRect);
+      selectionRect.visible = true;
+      canvas.add(selectionRect);
+
+      //     canvas.item(0).set({
+      //   borderColor: 'red',
+      //   cornerColor: 'green',
+      //   cornerSize: 10,
+      //   cornerRadius: 10,
+      //   transparentCorners: false
+      // });
+    }
+
+
+    function crop() {
+      canvas.renderAll();
+
+      let rect = new fabric.Rect({
+        left: selectionRect.left,
+        top: selectionRect.top,
+        width: selectionRect.getScaledWidth(),
+        height: selectionRect.getScaledHeight(),
+        absolutePositioned: true
+      });
+      debugger;
+
+      this.aImg.clipPath = rect;
+      canvas.remove(selectionRect);
+      canvas.renderAll();
+
+      // this.aImg.canvas.remove(selectionRect);
+      // this.aImg.width=rect.width;
+      // this.aImg.height=rect.height;
+
+      // this.aImg.canvas.renderAll();
+
+
+      // canvas.renderAll();
+    }
+    document.getElementById("rotateR").addEventListener("click", function () {
+      var activeObj = canvas.getActiveObject();
+      activeObj.animate('angle', '+=90', {
+        onChange: canvas.renderAll.bind(canvas)
+      });
+
+    });
+    document.getElementById("crop").addEventListener("click", function () {
+      addSelectionRect();
+    });
+    document.getElementById("crop").addEventListener("click", function () {
+      crop();
+    });
+    document.getElementById("rotateL").addEventListener("click", function () {
+      var activeObj = canvas.getActiveObject();
+      activeObj.animate('angle', '-=90', {
+        onChange: canvas.renderAll.bind(canvas)
+      });
+
+    }
+    );
+  </script>
