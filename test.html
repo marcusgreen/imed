@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.css" integrity="sha512-+VDbDxc9zesADd49pfvz7CgsOl2xREI/7gnzcdyA9XjuTxLXrdpuz21VVIqc5HPfZji2CypSbxx1lgD7BgBK5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.js" integrity="sha512-ZK6m9vADamSl5fxBPtXw6ho6A4TuX89HUbcfvxa2v2NYNT/7l8yFGJ3JlXyMN4hlNbz0il4k6DvqbIW5CCwqkw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      .container {
+        margin: 20px auto;
+        max-width: 640px;
+      }
+      img {
+        display: block;
+
+        max-width: 100%;
+      }
+    </style>
+
+  </head>
+  <body>
+
+  <div class="container">
+    <div>
+      <img id="image" src="boyface.png" alt="">
+    </div>
+
+    <div>
+      <button type="button" id="btn_crop">Crop
+        <i id="btn-crop" class="icon fa fa-crop" title="Crop" aria-label="Crop"></i>
+      </button>
+
+      <button type="button" id="btn_rotate_left">Rotate Left
+        <i id="btn-rotate_left" class="icon fa fa-rotate-left" title="Rotate left" aria-label="Rotate left"></i>
+      </button>
+      <button type="button" id="btn_rotate_right">Rotate Right
+        <i  class="icon fa fa-rotate-right" title="Rotate right" aria-label="Rotate Right"></i>
+      </button>
+
+      <button type="button" id="btn_reset">Reset
+        <i  class="icon fa fa-refresh" title="Reset" aria-label="Reset"></i>
+      </button>
+    </div>
+
+    <script>
+
+      var image;
+      var cropper;
+      init();
+      function init() {
+            debugger;
+            image = document.getElementById("image");
+            cropper = new Cropper(image, {
+            autoCrop: true,
+            zommable: false,
+        });
+      }
+      cropper.disable();
+      debugger;
+    var rotation = 0;
+    var crop = document.getElementById("btn_crop").addEventListener("click",function() {
+
+        debugger;
+        canvas = cropper.getCroppedCanvas();
+         var data = cropper.getData();
+         cropper.replace(canvas.toDataURL(),data);
+         cropper.clear();
+
+      });
+
+
+    var btnReset = document.getElementById("btn_reset").addEventListener("click",function(){
+          cropper.reset();
+        });
+        var btnLeft = document.getElementById("btn_rotate_left").addEventListener("click",function(){
+          debugger;
+          rotation =-90;
+          cropper.rotate(rotation);
+        });
+
+        var btnRight = document.getElementById("btn_rotate_right").addEventListener("click",function(){
+          rotation =90;
+          cropper.rotate(rotation);
+        });
+
+   </script>
+
+  </body>
+</html>
