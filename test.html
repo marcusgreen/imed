@@ -50,19 +50,18 @@
             debugger;
             image = document.getElementById("image");
             cropper = new Cropper(image, {
-            autoCrop: true,
-            zommable: false,
+            autoCrop: false,
+            zoomable: false,
+
         });
       }
-      cropper.disable();
-      debugger;
     var rotation = 0;
     var crop = document.getElementById("btn_crop").addEventListener("click",function() {
 
         debugger;
         canvas = cropper.getCroppedCanvas();
          var data = cropper.getData();
-         cropper.replace(canvas.toDataURL(),data);
+         cropper.replace(canvas.toDataURL(),true);
          cropper.clear();
 
       });
@@ -70,6 +69,10 @@
 
     var btnReset = document.getElementById("btn_reset").addEventListener("click",function(){
           cropper.reset();
+          cropper.replace('boyface.png',true);
+          // init();
+          // cropper.render();
+
         });
         var btnLeft = document.getElementById("btn_rotate_left").addEventListener("click",function(){
           debugger;
